@@ -1,11 +1,12 @@
 import React from 'react';
 import { Text, StyleSheet, TextStyle, TextProps } from 'react-native';
 import { FontSizes, FontWeights, Colors } from '../../../../domain/enum/theme';
+import { useThemeContext } from '../../../theme/theme-provider';
 
 interface TypographyProps extends TextProps {
   size?: FontSizes;
   weight?: FontWeights;
-  color?: Colors;
+  color?: Colors | string;
   align?: TextStyle['textAlign'];
   style?: TextStyle;
   children: React.ReactNode;
@@ -14,12 +15,13 @@ interface TypographyProps extends TextProps {
 const Typography: React.FC<TypographyProps> = ({
   size = FontSizes.Regular,
   weight = FontWeights.Regular,
-  color = Colors.black,
+  color,
   align = 'left',
   style,
   children,
   ...props
 }) => {
+  const { colors } = useThemeContext();
   return (
     <Text
       style={[
@@ -27,7 +29,7 @@ const Typography: React.FC<TypographyProps> = ({
         {
           fontSize: size,
           fontWeight: weight,
-          color: color,
+          color: color ?? colors.text,
           textAlign: align,
         },
         style,

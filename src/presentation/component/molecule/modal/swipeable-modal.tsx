@@ -7,6 +7,7 @@ import {
   PanResponder,
   Dimensions,
 } from 'react-native';
+import { useThemeContext } from '../../../theme/theme-provider';
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window');
 interface SwipableModalProps {
@@ -16,6 +17,7 @@ interface SwipableModalProps {
 }
 const SwipableModal:React.FC<SwipableModalProps> = ({ visible, onClose, children }) => {
   const translateY = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
+  const { colors } = useThemeContext();
 
   useEffect(() => {
     if (visible) {
@@ -72,7 +74,7 @@ const SwipableModal:React.FC<SwipableModalProps> = ({ visible, onClose, children
     <Animated.View
       style={[
         styles.modal,
-        { transform: [{ translateY }] },
+        { transform: [{ translateY }], backgroundColor: colors.card, shadowColor: colors.text },
       ]}
       {...panResponder.panHandlers}
     >

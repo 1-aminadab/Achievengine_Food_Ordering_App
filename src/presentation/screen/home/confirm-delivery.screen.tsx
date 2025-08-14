@@ -8,15 +8,14 @@ import { FontSizes, FontWeights, Colors } from '../../../domain/enum/theme';
 import { Intent, Size } from '../../../domain/enum/button';
 import { Theme } from '../../theme/theme';
 import SearchInput from '../../component/molecule/input/search-input';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../../application/stores/store';
+import { useFoodStore } from '../../../application/stores/food.store';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { HomeScreens } from '../../../domain/enum/screen-name';
 import { commonStyles } from '../../styles/common-styles';
 const { width } = Dimensions.get('window');
 
 const PaymentSuccessScreen = () => {
-  const { cart, totalPrice, totalCartItems } = useSelector((state: RootState) => state.food);
+  const { cart, totalPrice, totalCartItems } = useFoodStore();
   const navigation = useNavigation<NavigationProp<any>>();
   return (
     <View style={{ padding: 10, gap: 15, flex: 1 }}>

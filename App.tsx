@@ -16,7 +16,7 @@ function App() {
   const isDarkMode = useColorScheme() === 'dark';
 
   return (
-    <SafeAreaProvider>
+    <SafeAreaProvider style={{ flex: 1 , paddingTop: 10}}>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       <AppContent />
     </SafeAreaProvider>
@@ -39,6 +39,7 @@ function AppContent() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    marginTop: 20
   },
 });
 

@@ -8,6 +8,7 @@ import Header from '../../component/molecule/card/header.component';
 import { Size } from '../../../domain/enum/button';
 import { useNavigation } from '@react-navigation/native';
 import { OnboardingScreens, RootScreens } from '../../../domain/enum/screen-name';
+import { useThemeContext } from '../../theme/theme-provider';
 
 const RegisterScreen = () => {
   const [name, setName] = useState('');
@@ -27,9 +28,10 @@ const RegisterScreen = () => {
     setIsEmailValid(emailRegex.test(text) && text.length <= 100);
   };
 
+  const { colors } = useThemeContext();
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.background }]}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <Header title="Register" />
@@ -51,10 +53,9 @@ const RegisterScreen = () => {
           placeholder="Enter your name"
           maxLength={50}
           theme={{
-            
             colors: {
-              primary: '#000',
-              text: 'black',
+              primary: colors.text,
+              text: colors.text,
               background: 'transparent',
             },
           }}
@@ -79,8 +80,8 @@ const RegisterScreen = () => {
           
           theme={{
             colors: {
-              primary: '#000',
-              text: 'black',
+              primary: colors.text,
+              text: colors.text,
               background: 'transparent',
             },
           }}

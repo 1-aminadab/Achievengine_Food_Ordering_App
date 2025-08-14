@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import Typography from '../../component/atom/typography/text.component';
 import { Colors, FontSizes, FontWeights } from '../../../domain/enum/theme';
+import { useThemeContext } from '../../theme/theme-provider';
 import Header from '../../component/molecule/card/header.component';
 import { useNavigation } from '@react-navigation/native';
 import { AuthScreens } from '../../../domain/enum/screen-name';
@@ -73,17 +74,18 @@ const OtpVerificationScreen = () => {
     return formatted;
   };
 
+  const { colors } = useThemeContext();
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }] }>
       <Header />
       <View style={{ flex: 1, marginTop: 80 }}>
         <Typography size={FontSizes.ExtraLarge} weight={FontWeights.Bold} align="center" style={styles.title}>
           Enter Code
         </Typography>
-        <Typography size={14} align="center"  weight={FontWeights.Bold} color={Colors.black}>
+        <Typography size={14} align="center"  weight={FontWeights.Bold}>
           We've sent the 6-digit code to
         </Typography>
-        <Typography size={14} align="center"  weight={FontWeights.Bold} color={Colors.black}>
+        <Typography size={14} align="center"  weight={FontWeights.Bold}>
           +974 •••• ••••
         </Typography>
 
@@ -109,12 +111,12 @@ const OtpVerificationScreen = () => {
 
         {resendVisible ? (
           <TouchableOpacity onPress={handleResend}>
-            <Typography size={16} align="center" style={styles.resendText}>
+            <Typography size={16} align="center" style={[styles.resendText, { color: colors.text }]}>
               Resend Code
             </Typography>
           </TouchableOpacity>
         ) : (
-          <Typography size={12} align="center" style={styles.timer}>
+          <Typography size={12} align="center" style={[styles.timer, { color: colors.muted }]}>
             Request a new code in 0:{timer.toString().padStart(2, '0')}
           </Typography>
         )}

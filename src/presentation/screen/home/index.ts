@@ -5,3 +5,4 @@ export {default as FoodSwiperScreen} from './food-swiper.screen';
 export {default as ProfileScreen} from './profile.screen';
 export {default as DeliveryScreen} from './delivery.screen';
 export {default as ConfirmDeliveryScreen} from './confirm-delivery.screen';
+export {default as MenuManagementScreen} from './menu-management.screen';

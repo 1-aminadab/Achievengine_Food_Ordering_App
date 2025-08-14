@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { useThemeContext } from '../../theme/theme-provider';
 import Typography from '../../component/atom/typography/text.component';
 import { FontSizes, FontWeights } from '../../../domain/enum/theme';
 import { Theme } from '../../theme/theme';
@@ -7,10 +8,8 @@ import Button from '../../component/atom/button/button.component';
 import { Size } from '../../../domain/enum/button';
 import { NavComponent } from '../../../presentation/component/molecule/card/nav-card.component';
 import Icon, { IconLibraryName } from '../../component/atom/icon/icon.component';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../../../application/stores/store';
+import { useFoodStore } from '../../../application/stores/food.store';
 import { ICartItem, IFood } from '../../types';
-import { addFoodToCart, clearCart, removeFoodFromCart } from '../../../application/stores/slices/food/food.slice';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import HomeScreen from './home.screen';
 import { HomeScreens } from '../../../domain/enum/screen-name';
@@ -19,16 +18,16 @@ import { commonStyles } from '../../styles/common-styles';
 // Individual Cart Item Component
 const CartItem = ({ item, onQuantityChange, totalItems }: { item: ICartItem }) => {
   const [quantity, setQuantity] = useState(1);
-  const dispatch = useDispatch();
+  const { addFoodToCart, removeFoodFromCart } = useFoodStore();
 
   const handleIncrement = (id: string) => {
-    dispatch(addFoodToCart({ id }));
+    addFoodToCart(id);
     setQuantity(quantity + 1);
     // onQuantityChange(item.price);
   };
 
   const handleDecrement = (id: string) => {
-    dispatch(removeFoodFromCart({ id }));
+    removeFoodFromCart(id);
 
     if (quantity > 1) {
       setQuantity(quantity - 1);
@@ -66,9 +65,9 @@ const CartItem = ({ item, onQuantityChange, totalItems }: { item: ICartItem }) =
 // Main Cart Screen Component
 const CartScreen = () => {
   const navigation = useNavigation<NavigationProp<any>>();
-  const dispatch = useDispatch();
+  const { cart, totalPrice, totalCartItems, clearCart } = useFoodStore();
   const [total, setTotal] = useState(0);
-  const { cart, totalPrice, totalCartItems } = useSelector((state: RootState) => state.food);
+  
   const handleQuantityChange = (change) => {
     setTotal(total + change);
   };
@@ -78,25 +77,26 @@ const CartScreen = () => {
       navigation.goBack();
     }
   }, [totalCartItems, navigation]);
+  const { colors } = useThemeContext();
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }] }>
       <View style={styles.header}>
         <Icon  from={IconLibraryName.Ionicons} name="close" size={24} color={Theme.colors.black} onPress={() => navigation.goBack()} />
         <Text style={styles.headerTitle}>Cart</Text>
         <TouchableOpacity>
           <Icon from={IconLibraryName.MaterialCommunityIcons} name="delete-outline" size={27} color={Theme.colors.black} onPress={() => {
-            dispatch(clearCart());
+            clearCart();
             navigation.goBack()
             }} />
         </TouchableOpacity>
       </View>
 
-      <ScrollView style={styles.cartList}>
+      <ScrollView style={[styles.cartList, { backgroundColor: colors.card }]}>
         {cart.map((item) => (
           <CartItem key={item.id} item={item} onQuantityChange={handleQuantityChange} />
         ))}
       </ScrollView>
-      <View style={{ paddingHorizontal: 20, paddingVertical: 5, backgroundColor: 'white', marginTop: 2 }}>
+      <View style={{ paddingHorizontal: 20, paddingVertical: 5, backgroundColor: colors.card, marginTop: 2 }}>
 
 
         <NavComponent
@@ -111,7 +111,7 @@ const CartScreen = () => {
         />
 
       </View>
-      <View style={styles.footer}>
+      <View style={[styles.footer, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
         <View style={{ borderBottomWidth: 1,borderBottomColor:Theme.colors.GrayLight, padding: 10 }}>
           <NavComponent
             title="Cuttery"

@@ -5,6 +5,7 @@ import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-na
 import { Text } from 'react-native';
 import { HomeNavigator } from '../stack/home/home.navigation';
 import { Theme } from '../../theme/theme';
+import { useThemeContext } from '../../theme/theme-provider';
 
 // Text placeholders for screens
 const FoodScreen = () => <Text>Food Screen</Text>;
@@ -15,7 +16,7 @@ const ProfileScreen = () => <Text>Profile Screen</Text>;
 
 const Tab = createBottomTabNavigator();
 
-const AnimatedIcon = ({ name, focused }: { name: string; focused: boolean }) => {
+const AnimatedIcon = ({ name, focused, color }: { name: string; focused: boolean; color: string }) => {
   const scale = useSharedValue(focused ? 1.2 : 1);
 
   React.useEffect(() => {
@@ -28,12 +29,13 @@ const AnimatedIcon = ({ name, focused }: { name: string; focused: boolean }) => 
 
   return (
     <Animated.View style={animatedStyle}>
-      <Icon name={name} size={20} color={focused ? Theme.colors.Primary : Theme.colors.gray+'bb'} />
+      <Icon name={name} size={20} color={color} />
     </Animated.View>
   );
 };
 
 const MainTabNavigator = () => {
+  const { colors } = useThemeContext();
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -57,19 +59,19 @@ const MainTabNavigator = () => {
               iconName = 'account';
               break;
           }
-
-          return <AnimatedIcon name={iconName} focused={focused} />;
+          const tint = focused ? Theme.colors.Primary : (colors.text + 'bb');
+          return <AnimatedIcon name={iconName} focused={focused} color={tint} />;
         },
         tabBarLabel: ({ focused }) => {
           return (
-            <Text style={{ fontSize: 10, fontWeight:"bold", color: focused ? Theme.colors.Primary : Theme.colors.gray+'bb'}}>
+            <Text style={{ fontSize: 10, fontWeight:"bold", color: focused ? Theme.colors.Primary : (colors.text+'bb')}}>
               {route.name}
             </Text>
           );
         },
         tabBarStyle: {
           height: 60,
-          backgroundColor: 'white',
+          backgroundColor: colors.card,
           shadowOpacity: 0,  // Remove shadow
           elevation: 0, 
           borderTopWidth:0

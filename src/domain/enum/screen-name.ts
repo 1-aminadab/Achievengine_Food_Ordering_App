@@ -11,7 +11,8 @@ export enum HomeScreens {
     FoodSwiper = 'FoodSwiper',
     Profile = 'Profile',
     Delivery = 'Delivery',
-    ConfirmDelivery = 'Confirm-Delivery'
+    ConfirmDelivery = 'Confirm-Delivery',
+    MenuManagement = 'Menu-Management'
 }
 
 export enum OnboardingScreens {

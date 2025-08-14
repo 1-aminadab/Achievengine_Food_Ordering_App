@@ -16,6 +16,7 @@ import { Theme } from '../../theme/theme';
 import Button from '../../component/atom/button/button.component';
 import { Size } from '../../../domain/enum/button';
 import { useNavigation } from '@react-navigation/native';
+import { useThemeContext } from '../../theme/theme-provider';
 import { AuthScreens } from '../../../domain/enum/screen-name';
 
 const countries = [
@@ -74,9 +75,10 @@ const PhoneNumberInput = () => {
 
   const isButtonDisabled = phoneNumber.trim() === '' || !validatePhoneNumber(phoneNumber);
 
+  const { colors } = useThemeContext();
   return (
     <KeyboardAvoidingView
-      style={[styles.container, { backgroundColor: isModalVisible ? '#0001' : '#fff' }]}
+      style={[styles.container, { backgroundColor: isModalVisible ? (colors.background) : colors.background }]}
       behavior="padding"
     >
       <Header />
@@ -86,15 +88,16 @@ const PhoneNumberInput = () => {
       </Typography>
 
       {/* Input Section */}
-      <View style={styles.inputWrapper}>
+      <View style={[styles.inputWrapper, { borderColor: colors.border, backgroundColor: colors.card }]}>
         <TouchableOpacity onPress={openModal} style={styles.countryCode}>
-          <Text style={styles.countryCodeText}>
+          <Text style={[styles.countryCodeText, { color: colors.text }]}>
             {selectedCountry.flag} {selectedCountry.code}
           </Text>
         </TouchableOpacity>
         <TextInput
-          style={styles.input}
+          style={[styles.input, { color: colors.text }]}
           placeholder="Enter your phone number"
+          placeholderTextColor={colors.muted}
           keyboardType="phone-pad"
           value={phoneNumber}
           onChangeText={handlePhoneNumberChange}
@@ -102,7 +105,7 @@ const PhoneNumberInput = () => {
       </View>
 
       {/* Error Message */}
-      {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
+      {errorMessage ? <Text style={[styles.errorText, { color: 'red' }]}>{errorMessage}</Text> : null}
 
       {/* Continue Button */}
       <Button
@@ -118,7 +121,7 @@ const PhoneNumberInput = () => {
       {/* Modal for Country Selection */}
       <SwipableModal visible={isModalVisible} onClose={() => setModalVisible(false)}>
         <View style={{ alignItems: 'flex-start' }}>
-          <Text style={styles.modalHeader}>Choose country</Text>
+          <Text style={[styles.modalHeader, { color: colors.text }]}>Choose country</Text>
         </View>
         {countries.map((country) => (
           <TouchableOpacity
@@ -129,13 +132,14 @@ const PhoneNumberInput = () => {
             <Text
               style={[
                 styles.countryText,
+                { color: colors.text },
                 selectedCountry.code === country.code && styles.selectedCountry,
               ]}
             >
               {country.flag} {country.name}
             </Text>
             <View style={{ flexDirection: 'row', gap: 5 }}>
-              <Text style={{ fontWeight: 'bold' }}>{country.code}</Text>
+              <Text style={{ fontWeight: 'bold', color: colors.text }}>{country.code}</Text>
               {selectedCountry.code === country.code && (
                 <Icon
                   from={IconLibraryName.MaterialIcons}

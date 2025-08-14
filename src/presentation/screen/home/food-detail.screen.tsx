@@ -12,10 +12,10 @@ import Icon, { IconLibraryName } from '../../component/atom/icon/icon.component'
 import { Theme } from '../../theme/theme';
 import { FontSizes, FontWeights } from '../../../domain/enum/theme';
 import { NavComponent } from '../../component/molecule/card/nav-card.component';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../../application/stores/store';
+import { useFoodStore } from '../../../application/stores/food.store';
 import IconButton from '../../component/atom/button/icon-button.component';
 import { useNavigation } from '@react-navigation/native';
+import { useThemeContext } from '../../theme/theme-provider';
 import { dummyFooter } from '../../../application/data/dummy-data';
 
 const PromoFoodCard = ({ title, image, tag }: { title: string, image: string, tag: string }) => (
@@ -34,13 +34,14 @@ const PromoFoodCard = ({ title, image, tag }: { title: string, image: string, ta
       Takeaway = 'Takeaway'
      } 
 const RestaurantScreen = () => {
-  const selectedFood = useSelector((state: RootState) => state.food.selectedFood);
+  const selectedFood = useFoodStore((s) => s.selectedFood);
   const navigation = useNavigation()
     const [currentButton, setCurrentButton] = useState(ButtonType.Delivery);
   
 
+  const { colors } = useThemeContext();
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Highlight Section */}
       {/* <SwiperPagerButton/> */}
 
@@ -82,7 +83,7 @@ const RestaurantScreen = () => {
         </View>
 
         {/* Restaurant Details */}
-        <View style={styles.detailsContainer}>
+        <View style={[styles.detailsContainer, { backgroundColor: colors.card }] }>
           <Text style={styles.restaurantName}>Spice and Sizzle</Text>
           <View style={styles.ratingRow}>
             <View style={{ backgroundColor: Theme.colors.GrayLight, flexDirection: 'row', padding: 5, alignItems: 'center', borderRadius: 20 }}>

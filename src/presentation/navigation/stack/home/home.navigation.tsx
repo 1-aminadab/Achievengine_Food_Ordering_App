@@ -1,7 +1,7 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { HomeScreens } from '../../../../domain/enum/screen-name';
-import { CartScreen, ConfirmDeliveryScreen, DeliveryScreen, FoodDetailScreen, FoodSwiperScreen, HomeScreen, ProfileScreen } from '../../../screen/home';
+import { CartScreen, ConfirmDeliveryScreen, DeliveryScreen, FoodDetailScreen, FoodSwiperScreen, HomeScreen, ProfileScreen, MenuManagementScreen } from '../../../screen/home';
 
 const HomeStack = createNativeStackNavigator();
 export const HomeNavigator = () => (
@@ -13,5 +13,6 @@ export const HomeNavigator = () => (
     <HomeStack.Screen name={HomeScreens.ConfirmDelivery} component={ConfirmDeliveryScreen} />
     <HomeStack.Screen name={HomeScreens.Cart} component={CartScreen} />
     <HomeStack.Screen name={HomeScreens.Profile} component={ProfileScreen} />
+    <HomeStack.Screen name={HomeScreens.MenuManagement} component={MenuManagementScreen} />
   </HomeStack.Navigator>
 );

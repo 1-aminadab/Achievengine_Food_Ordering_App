@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { useEffect, useState } from 'react';
-import { FlatList, Image, ImageBackground, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { FlatList, Image, ImageBackground, StyleSheet, TouchableOpacity, View, Animated } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Button from '../../component/atom/button/button.component';
 import Typography from '../../component/atom/typography/text.component';
@@ -9,27 +9,26 @@ import { Theme } from '../../theme/theme';
 import Icon, { IconLibraryName } from '../../component/atom/icon/icon.component';
 import { Colors, FontSizes, FontWeights } from '../../../domain/enum/theme';
 import { dummyFoods } from '../../../application/data/dummy-data';
-import { useDispatch, useSelector } from 'react-redux';
-import { addFoodToCart, selectFood, setFoodItems } from '../../../application/stores/slices/food/food.slice';
+import { useFoodStore } from '../../../application/stores/food.store';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { HomeScreens } from '../../../domain/enum/screen-name';
 import IconButton from '../../component/atom/button/icon-button.component';
-import { RootState } from '../../../application/stores/store';
 import { commonStyles } from '../../styles/common-styles';
 
 export default function FoodSwiperScreen() {
-  const { cart, totalCartItems } = useSelector((state: RootState) => state.food);
+  const { cart, totalCartItems, setFoodItems, selectFood, addFoodToCart } = useFoodStore();
 
   const [viewHeight, setHeight] = useState<number | null>(null);
-  const dispatch = useDispatch();
+  const dispatch = { addFoodToCart, selectFood } as const;
+  const scrollY = React.useRef(new Animated.Value(0)).current;
   const navigation = useNavigation<NavigationProp<any>>();
 
   const handleSelectFood = (id: string) => {
-    dispatch(selectFood({ id }));
+    dispatch.selectFood(id);
     navigation.navigate(HomeScreens.FoodDetail);
   };
   useEffect(() => {
-    dispatch(setFoodItems(dummyFoods));
+    setFoodItems(dummyFoods);
   }, []);
 
   return (
@@ -66,27 +65,54 @@ export default function FoodSwiperScreen() {
 
       </View>
       {viewHeight && (
-        <FlatList
+        <Animated.FlatList
           data={dummyFoods}
           pagingEnabled
           keyExtractor={(item, index) => index.toString()}
           decelerationRate="fast"
-          renderItem={({ item }) => (
-            <TouchableOpacity onLongPress={() => handleSelectFood(item.id)} style={[styles.item, { height: viewHeight }]}>
-              <ImageBackground style={styles.img} source={{ uri: item.imageUrl }} resizeMode="cover">
+          onScroll={Animated.event(
+            [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+            { useNativeDriver: true }
+          )}
+          scrollEventThrottle={16}
+          renderItem={({ item, index }) => (
+            <View style={[styles.item, { height: viewHeight }]}>
+              <ImageBackground style={styles.img} source={{ uri: item.imageUrl }} resizeMode="cover" blurRadius={12}>
                 {/* Gradient Overlay */}
-                <View style={{ alignItems: 'center', position: 'absolute', top: '50%', left: '85%' }}>
-                  <Button
-                    icon={<Icon from={IconLibraryName.Feather} name="share" size={24} color={Theme.colors.white} />}
-                    style={styles.shareButton}
-                    shape={Shape.Circle}
-
-                    onPress={() => { }}
-                  />
-                  <Typography weight={FontWeights.Bold} size={FontSizes.Small} color={Theme.colors.white}>
-                    Share
-                  </Typography>
+                <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center' }}>
+                  {(() => {
+                    const inputRange = [
+                      (index - 1) * viewHeight,
+                      index * viewHeight,
+                      (index + 1) * viewHeight,
+                    ];
+                    const rotate = scrollY.interpolate({
+                      inputRange,
+                      // Rotate a full 365 degrees across one screen height in either direction
+                      outputRange: ['-365deg', '0deg', '365deg'],
+                      extrapolate: 'clamp',
+                    });
+                    const scale = scrollY.interpolate({
+                      inputRange,
+                      // Scale up as we leave center in either direction
+                      outputRange: [1.2, 1.0, 1.2],
+                      extrapolate: 'clamp',
+                    });
+                    const opacity = scrollY.interpolate({
+                      inputRange,
+                      // Slightly dim when away from center
+                      outputRange: [0.7, 1.0, 0.7],
+                      extrapolate: 'clamp',
+                    });
+                    return (
+                      <Animated.Image
+                        source={{ uri: item.imageUrl }}
+                        style={{ width: 300, height: 300, borderRadius: 100, opacity, transform: [{ rotate }, { scale }] }}
+                      />
+                    );
+                  })()}
                 </View>
+                
                 <LinearGradient
                   start={{ x: 0, y: 0.5 }}
                   end={{ x: 0, y: 1 }}
@@ -138,17 +164,17 @@ export default function FoodSwiperScreen() {
                           borderRadius: 15,
                         }}
                       />
-                      <Button
-
-                        icon={<Icon from={IconLibraryName.Ionicons} name="add" size={24} color={Theme.colors.black} />}
-                        style={styles.addButton}
-                        onPress={() => { dispatch(addFoodToCart({ id: item.id! })) }}
-                      />
+                       <Button
+                         icon={<Icon from={IconLibraryName.Ionicons} name="add" size={24} color={Theme.colors.black} />}
+                         style={styles.addButton}
+                         onPress={() => { addFoodToCart(item.id!) }}
+                       />
                     </View>
                   </TouchableOpacity>
+                  
                 </View>
               </ImageBackground>
-            </TouchableOpacity>
+            </View>
           )}
         />
       )}

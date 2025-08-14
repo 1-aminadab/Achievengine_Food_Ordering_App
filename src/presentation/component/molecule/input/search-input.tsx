@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, ViewStyle, TextStyle } from 'react-native';
+import { StyleSheet, ViewStyle, TextStyle, StyleProp } from 'react-native';
 import Input from '../../atom/input/input.component';
 import Icon, { IconLibraryName } from '../../atom/icon/icon.component';
 import { Theme } from '../../../theme/theme';
@@ -8,8 +8,8 @@ interface SearchInputProps {
   placeholder?: string;
   value?: string;
   onChangeText?: (text: string) => void;
-  style?: ViewStyle;
-  inputStyle?: TextStyle;
+  style?: StyleProp<ViewStyle>;
+  inputStyle?: StyleProp<TextStyle>;
   iconColor?: string;
 }
 

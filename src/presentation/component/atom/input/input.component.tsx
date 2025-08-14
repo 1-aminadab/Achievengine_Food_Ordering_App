@@ -8,6 +8,7 @@ import {
   TextStyle,
   TextInputProps,
 } from 'react-native';
+import { useThemeContext } from '../../../theme/theme-provider';
 interface InputProps extends TextInputProps {
   label?: string;
   placeholder?: string;
@@ -36,20 +37,23 @@ const Input: React.FC<InputProps> = ({
   disabled = false,
   ...props
 }) => {
+  const { colors } = useThemeContext();
   return (
     <View style={[styles.container, style]}>
-      {label && <Text style={[styles.label, labelStyle]}>{label}</Text>}
+      {label && <Text style={[styles.label, { color: colors.text }, labelStyle]}>{label}</Text>}
       <View
         style={[
           styles.inputContainer,
-          iconPosition === 'right' && styles.rowReverse,
-          disabled && styles.disabledInput,
+          iconPosition === 'right' ? styles.rowReverse : undefined,
+          disabled ? styles.disabledInput : undefined,
+          { backgroundColor: 'transparent' },
         ]}
       >
         {icon && <View style={styles.icon}>{icon}</View>}
         <TextInput
-          style={[styles.input, inputStyle]}
+          style={[styles.input, { color: colors.text }, inputStyle]}
           placeholder={placeholder}
+          placeholderTextColor={colors.muted}
           value={value}
           onChangeText={onChangeText}
           editable={!disabled}
