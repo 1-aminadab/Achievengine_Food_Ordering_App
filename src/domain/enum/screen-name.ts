@@ -9,6 +9,7 @@ export enum HomeScreens {
     Cart = 'Cart',
     FoodDetail = 'FoodDetail',
     FoodSwiper = 'FoodSwiper',
+    MenuGrid = 'Menu-Grid',
     Profile = 'Profile',
     Delivery = 'Delivery',
     ConfirmDelivery = 'Confirm-Delivery',

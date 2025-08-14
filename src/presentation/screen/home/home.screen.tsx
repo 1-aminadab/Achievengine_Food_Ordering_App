@@ -82,7 +82,7 @@ const HomeScreen = () => {
       <View style={styles.cardContainer}>
         {foodStoresData.map((item, index) => (
           <FoodCardComponent
-            onPress={() => navigation.navigate(HomeScreens.FoodSwiper)}
+            onPress={() => navigation.navigate(HomeScreens.MenuGrid)}
             key={index}
             image={item.image}
             text={item.text}
@@ -115,7 +115,7 @@ const HomeScreen = () => {
       <ScrollView horizontal >
         {foodStoresData.map((item, index) => (
           <FoodCardComponent
-            onPress={() => navigation.navigate(HomeScreens.FoodSwiper)}
+            onPress={() => navigation.navigate(HomeScreens.MenuGrid)}
             key={index}
             image={item.image}
             // text={item.text}
