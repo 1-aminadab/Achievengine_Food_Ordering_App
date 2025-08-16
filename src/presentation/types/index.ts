@@ -15,6 +15,8 @@ export interface IFood {
     price: number;
     imageUrl: string;
     quantity: number;
+    specialRequest?: string;
+    requiresCutlery?: boolean;
   }
 
   export interface ICartState {
@@ -23,4 +25,15 @@ export interface IFood {
     totalCartItems: number;
     totalPrice: number;
     selectedFood:IFood | null;
+    cutleryCount: number;
+    promoCode?: string;
+    discount: number;
+    deliveryFee: number;
+  }
+
+  export interface IPromoCode {
+    code: string;
+    discount: number;
+    isPercentage: boolean;
+    isValid: boolean;
   }

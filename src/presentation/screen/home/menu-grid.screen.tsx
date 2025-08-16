@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import Icon, { IconLibraryName } from '../../component/atom/icon/icon.component';
 import Button from '../../component/atom/button/button.component';
+import SearchInput from '../../component/molecule/input/search-input';
 import { Theme } from '../../theme/theme';
 import { Intent, Shape, Size } from '../../../domain/enum/button';
 import { useThemeContext } from '../../theme/theme-provider';
@@ -28,9 +29,44 @@ type ViewMode = 'grid' | 'list';
 const MenuGridScreen = () => {
   const navigation = useNavigation<NavigationProp<any>>();
   const { colors } = useThemeContext();
-  const { foodItems, totalCartItems, addFoodToCart, removeFoodFromCart, cart, selectFood } = useFoodStore();
+  const { foodItems, totalCartItems, addFoodToCart, removeFoodFromCart, cart, selectFood, loadFoodsFromApi } = useFoodStore();
   
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredFoods, setFilteredFoods] = useState(foodItems);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    loadFoodsFromApiWithLoading();
+  }, []);
+
+  const loadFoodsFromApiWithLoading = async () => {
+    setLoading(true);
+    try {
+      await loadFoodsFromApi();
+    } catch (error) {
+      console.error('Failed to load foods:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Update filtered foods when foodItems or searchQuery changes
+  useEffect(() => {
+    if (searchQuery.trim() === '') {
+      setFilteredFoods(foodItems);
+    } else {
+      const filtered = foodItems.filter(item => 
+        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.description.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredFoods(filtered);
+    }
+  }, [foodItems, searchQuery]);
+
+  const handleSearch = (text: string) => {
+    setSearchQuery(text);
+  };
 
   const getCartQuantity = (itemId: string): number => {
     const cartItem = cart.find(item => item.id === itemId);
@@ -42,7 +78,7 @@ const MenuGridScreen = () => {
     
     return (
       <TouchableOpacity
-        style={[styles.gridCard, { backgroundColor: colors.card, shadowColor: colors.text }]}
+        style={[styles.gridCard, { backgroundColor: colors.card, shadowColor: '#8888' }]}
         onPress={() => {
           selectFood(item.id);
           navigation.navigate(HomeScreens.FoodSwiper);
@@ -110,7 +146,7 @@ const MenuGridScreen = () => {
     
     return (
       <TouchableOpacity
-        style={[styles.listCard, { backgroundColor: colors.card, shadowColor: colors.text }]}
+        style={[styles.listCard, { backgroundColor: colors.card, shadowColor: '#8888'}]}
         onPress={() => {
           selectFood(item.id);
           navigation.navigate(HomeScreens.FoodSwiper);
@@ -239,18 +275,33 @@ const MenuGridScreen = () => {
         </View>
       </View>
 
+      {/* Search Input */}
+      <SearchInput
+        style={[styles.searchInput, { backgroundColor: colors.card, elevation: 20, shadowColor: '#8888', borderWidth:1, borderColor: '#8881' }]}
+        placeholder="Search menu items..."
+        value={searchQuery}
+        onChangeText={handleSearch}
+      />
+
       {/* Menu Items */}
-      {foodItems.length === 0 ? (
+      {loading ? (
+        <View style={styles.loadingState}>
+          <Icon from={IconLibraryName.MaterialIcons} name="hourglass-empty" size={64} color={colors.muted} />
+          <Text style={[styles.loadingText, { color: colors.muted }]}>Loading menu items...</Text>
+        </View>
+      ) : filteredFoods.length === 0 ? (
         <View style={styles.emptyState}>
           <ShoppingBag size={64} color={colors.muted} />
-          <Text style={[styles.emptyText, { color: colors.muted }]}>No menu items available</Text>
+          <Text style={[styles.emptyText, { color: colors.muted }]}>
+            {searchQuery ? 'No items found' : 'No menu items available'}
+          </Text>
           <Text style={[styles.emptySubtext, { color: colors.muted }]}>
-            Check back later or contact the restaurant
+            {searchQuery ? 'Try adjusting your search terms' : 'Check back later or contact the restaurant'}
           </Text>
         </View>
       ) : (
         <FlatList
-          data={foodItems}
+          data={filteredFoods}
           renderItem={viewMode === 'grid' ? renderGridItem : renderListItem}
           numColumns={viewMode === 'grid' ? 2 : 1}
           key={viewMode} // Force re-render when changing view mode
@@ -347,7 +398,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowOffset: { width: 0, height: 4 },
     shadowRadius: 12,
-    elevation: 6,
+    elevation: 15,
+    shadowColor:'#8881',
     overflow: 'hidden',
   },
   gridImage: {
@@ -382,6 +434,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowRadius: 12,
     elevation: 6,
+    shadowColor:'#8881',
   },
   listImage: {
     width: 80,
@@ -491,6 +544,20 @@ const styles = StyleSheet.create({
   emptySubtext: {
     fontSize: 14,
     textAlign: 'center',
+  },
+  searchInput: {
+    margin: 10,
+  },
+  loadingState: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 60,
+  },
+  loadingText: {
+    fontSize: 16,
+    fontWeight: '500',
+    marginTop: 16,
   },
 });
 

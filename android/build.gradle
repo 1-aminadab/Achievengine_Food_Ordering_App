@@ -10,6 +10,8 @@ buildscript {
     repositories {
         google()
         mavenCentral()
+        gradlePluginPortal()
+        maven { url 'https://jcenter.bintray.com' }
     }
     dependencies {
         classpath("com.android.tools.build:gradle")

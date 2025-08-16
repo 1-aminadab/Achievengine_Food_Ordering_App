@@ -14,7 +14,7 @@ const { width, height } = Dimensions.get('window');
 
 const languages = [
   { id: '1', language: 'English' },
-  { id: '2', language: 'العربية' }, 
+  { id: '2', language: 'አማርኛ' }, 
 ];
 
 const OnboardingScreen = () => {
@@ -119,12 +119,17 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     flex: 1,
+    marginBottom: 300,
+    elevation: 10,
+   
     ...commonStyles.centered,
   },
   initialLogo: {
-    width: 90,
-    height: 90,
+    width: 320,
+    height: 320,
     resizeMode: 'contain',
+     borderRadius: 300,
+    overflow: 'hidden',
   },
   logo: {
     height: 110,
