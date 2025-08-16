@@ -269,7 +269,7 @@ const FoodDetailScreen = () => {
       'Added to Cart!',
       `${quantity} x ${selectedFood.name} added to your cart`,
       [
-        { text: 'Continue Shopping', onPress: () => hideModal() },
+        { text: 'Continue', onPress: () => hideModal() },
         { 
           text: 'View Cart', 
           onPress: () => {
@@ -337,67 +337,35 @@ const FoodDetailScreen = () => {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      {/* Fixed Header */}
-      <View style={styles.fixedHeader}>
-        <ImageBackground
-          source={{ uri: selectedFood.imageUrl }}
-          style={styles.headerImageContainer}
-          blurRadius={13}
-        >
-          <View style={styles.imageOverlay}>
-            <View style={styles.headerButtons}>
-              <IconButton
-                onPress={() => navigation.goBack()}
-                icon={<Icon from={IconLibraryName.MaterialIcons} name="arrow-back-ios" size={20} color={Theme.colors.white} />}
-                style={styles.headerButton}
+      {/* Header with Back Button */}
+      <View style={styles.headerButtons}>
+        <IconButton
+          onPress={() => navigation.goBack()}
+          icon={<Icon from={IconLibraryName.MaterialIcons} name="arrow-back-ios" size={20} color={Theme.colors.white} />}
+          style={styles.headerButton}
+        />
+        <View style={styles.rightButtons}>
+          <IconButton
+            onPress={handleShare}
+            icon={<Icon from={IconLibraryName.MaterialIcons} name="share" size={24} color={Theme.colors.white} />}
+            style={styles.headerButton}
+          />
+          <IconButton
+            onPress={() => {
+              setIsFavorite(!isFavorite);
+              animateFavorite();
+            }}
+            icon={
+              <Icon 
+                from={IconLibraryName.MaterialIcons} 
+                name={isFavorite ? "favorite" : "favorite-border"} 
+                size={24} 
+                color={isFavorite ? Theme.colors.red : Theme.colors.white} 
               />
-              <View style={styles.rightButtons}>
-                <IconButton
-                  onPress={handleShare}
-                  icon={<Icon from={IconLibraryName.MaterialIcons} name="share" size={24} color={Theme.colors.white} />}
-                  style={styles.headerButton}
-                />
-                <IconButton
-                  onPress={() => {
-                    setIsFavorite(!isFavorite);
-                    animateFavorite();
-                  }}
-                  icon={
-                    <Icon 
-                      from={IconLibraryName.MaterialIcons} 
-                      name={isFavorite ? "favorite" : "favorite-border"} 
-                      size={24} 
-                      color={isFavorite ? Theme.colors.red : Theme.colors.white} 
-                    />
-                  }
-                  style={styles.headerButton}
-                />
-              </View>
-            </View>
-            <View style={{ position:'relative', height:'270%', alignItems:'center', justifyContent:'center'}}>
-              <Animated.Image 
-                source={{uri: selectedFood.imageUrl}} 
-                style={[
-                  {zIndex:1, position:'absolute', top:-10, left:0, borderRadius: 100, width: 400, height: 400},
-                  {
-                    transform: [{ scale: scaleAnim }],
-                    opacity: fadeInAnim
-                  }
-                ]} 
-              />
-            </View>
-          </View>
-          
-          <Animated.View style={[
-            styles.discountTag,
-            {
-              opacity: fadeInAnim,
-              transform: [{ translateY: slideInAnim }]
             }
-          ]}>
-            <Text style={styles.discountTagText}>30% Off</Text>
-          </Animated.View>
-        </ImageBackground>
+            style={styles.headerButton}
+          />
+        </View>
       </View>
 
       {/* Scrollable Content */}
@@ -406,6 +374,39 @@ const FoodDetailScreen = () => {
         contentContainerStyle={{ paddingTop: 0 }}
         showsVerticalScrollIndicator={false}
       >
+        {/* Image Section */}
+        <View style={styles.imageSection}>
+          <ImageBackground
+            source={{ uri: selectedFood.imageUrl }}
+            style={styles.headerImageContainer}
+            blurRadius={13}
+          >
+            <View style={styles.imageOverlay}>
+              <View style={{ position:'relative', height:'270%', alignItems:'center', justifyContent:'center'}}>
+                <Animated.Image 
+                  source={{uri: selectedFood.imageUrl}} 
+                  style={[
+                    {zIndex:1, position:'absolute', top:-10, left:0, borderRadius: 100, width: 400, height: 400},
+                    {
+                      transform: [{ scale: scaleAnim }],
+                      opacity: fadeInAnim
+                    }
+                  ]} 
+                />
+              </View>
+            </View>
+            
+            <Animated.View style={[
+              styles.discountTag,
+              {
+                opacity: fadeInAnim,
+                transform: [{ translateY: slideInAnim }]
+              }
+            ]}>
+              <Text style={styles.discountTagText}>30% Off</Text>
+            </Animated.View>
+          </ImageBackground>
+        </View>
 
         {/* Food Details */}
         <Animated.View style={[
@@ -611,18 +612,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
-  fixedHeader: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: Dimensions.get('window').height * 0.5, // 50% of screen height
-    zIndex: 1,
-  },
+
   scrollableContent: {
-    zIndex: 1000,
     flex: 1,
-    marginTop: Dimensions.get('window').height * 0.4, // Start below the header
+  },
+  imageSection: {
+    height: Dimensions.get('window').height * 0.5, // 50% of screen height
   },
   headerImageContainer: {
     width: '100%',
@@ -639,6 +634,10 @@ const styles = StyleSheet.create({
     paddingTop: 50,
     paddingHorizontal: 20,
     zIndex: 100,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
   },
   rightButtons: {
     flexDirection: 'row',
@@ -656,6 +655,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 8,
+    zIndex: 2000
   },
   discountTagText: {
     color: '#fff',

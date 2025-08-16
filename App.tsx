@@ -12,9 +12,20 @@ import {
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 
+// Disable console logging in production
+if (!__DEV__) {
+  console.log = () => {};
+  console.error = () => {};
+  console.warn = () => {};
+  console.info = () => {};
+  console.debug = () => {};
+}
+
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
-
+  if(__DEV__){
+    // Development mode check
+  }
   return (
     <SafeAreaProvider >
       <SafeAreaView style={{ flex: 1 , marginTop: 10}}>

@@ -18,6 +18,7 @@ export interface FoodState {
   loadFoodsFromApi: () => Promise<void>;
   addFoodToCart: (id: string) => void;
   removeFoodFromCart: (id: string) => void;
+  removeCartItem: (id: string) => void;
   clearCart: () => void;
   selectFood: (id: string) => void;
   addMenuItem: (item: IFood) => void;
@@ -64,16 +65,16 @@ export const useFoodStore = create<FoodState>()(
               isVegetarian: apiFood.isVegetarian,
               isVegan: apiFood.isVegan,
               isGlutenFree: apiFood.isGlutenFree,
-              availability: apiFood.isAvailable,
+              availability: apiFood.availability || apiFood.isAvailable,
               rating: apiFood.rating,
               reviewCount: apiFood.reviewCount,
-              quantity: 10, // Default quantity for inventory
-              deliveryTime: `${apiFood.preparationTime}-${apiFood.preparationTime + 5} min`, // Convert preparation time to delivery time
+              quantity: apiFood.quantity || 0, // Use actual quantity from backend
+              deliveryTime: apiFood.deliveryTime || `${apiFood.preparationTime}-${apiFood.preparationTime + 5} min`,
             }));
             set({ foodItems: mappedFoods });
           }
         } catch (error) {
-          console.error('Failed to load foods from API:', error);
+          // Handle API loading error silently
         }
       },
 
@@ -135,6 +136,29 @@ export const useFoodStore = create<FoodState>()(
 
           const updatedFoodItems = state.foodItems.map((f) =>
             f.id === id ? { ...f, quantity: f.quantity + 1 } : f
+          );
+
+          const totalCartItems = newCart.reduce((t, i) => t + i.quantity, 0);
+          const totalPrice = newCart.reduce((t, i) => t + i.price * i.quantity, 0);
+
+          return {
+            foodItems: updatedFoodItems,
+            cart: newCart,
+            totalCartItems,
+            totalPrice,
+          };
+        }),
+
+      removeCartItem: (id: string) =>
+        set((state) => {
+          const cartItem = state.cart.find((c) => c.id === id);
+          if (!cartItem) return state;
+
+          const newCart = state.cart.filter((c) => c.id !== id);
+          
+          // Restore the quantity to the food items
+          const updatedFoodItems = state.foodItems.map((f) =>
+            f.id === id ? { ...f, quantity: f.quantity + cartItem.quantity } : f
           );
 
           const totalCartItems = newCart.reduce((t, i) => t + i.quantity, 0);
@@ -215,7 +239,6 @@ export const useFoodStore = create<FoodState>()(
           }
           return false;
         } catch (error) {
-          console.error('Promo code validation error:', error);
           return false;
         }
       },
@@ -259,7 +282,6 @@ export const useFoodStore = create<FoodState>()(
           }
           return false;
         } catch (error) {
-          console.error('Order creation error:', error);
           return false;
         }
       },

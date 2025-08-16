@@ -56,9 +56,9 @@ class AuthService {
   async logout(): Promise<void> {
     try {
       await AsyncStorage.multiRemove([this.TOKEN_KEY, this.USER_KEY]);
-      console.log('🔓 User logged out successfully');
+      // User logged out successfully
     } catch (error) {
-      console.error('❌ Logout error:', error);
+      // Logout error
     }
   }
 
@@ -99,7 +99,6 @@ class AuthService {
       const token = await AsyncStorage.getItem(this.TOKEN_KEY);
       return !!token;
     } catch (error) {
-      console.error('❌ Auth check error:', error);
       return false;
     }
   }
@@ -111,7 +110,6 @@ class AuthService {
     try {
       return await AsyncStorage.getItem(this.TOKEN_KEY);
     } catch (error) {
-      console.error('❌ Get token error:', error);
       return null;
     }
   }
@@ -124,7 +122,6 @@ class AuthService {
       const userData = await AsyncStorage.getItem(this.USER_KEY);
       return userData ? JSON.parse(userData) : null;
     } catch (error) {
-      console.error('❌ Get user data error:', error);
       return null;
     }
   }
@@ -138,9 +135,9 @@ class AuthService {
         [this.TOKEN_KEY, token],
         [this.USER_KEY, JSON.stringify(user)]
       ]);
-      console.log('🔐 Auth data stored successfully');
+      // Auth data stored successfully
     } catch (error) {
-      console.error('❌ Store auth data error:', error);
+      // Store auth data error
     }
   }
 

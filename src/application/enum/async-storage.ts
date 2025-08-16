@@ -9,7 +9,7 @@ export const setItem = async(key:StorageKeys, value:any): Promise<void> => {
         const jsonValue = typeof value === "string" ? value : JSON.stringify(value);  
         await AsyncStorage.setItem(key, jsonValue);
     } catch (error) {
-        console.error(`Error setting item with key ${key}:`, error)
+        // Error setting item
     }
 }
 
@@ -25,7 +25,7 @@ export const getItem = async (key: StorageKeys): Promise<any> => {
       }
       return null;
     } catch (error) {
-      console.error(`Error getting item with key ${key}:`, error);
+              // Error getting item
       return null;
     }
   };
@@ -35,6 +35,6 @@ export const removeItem = async (key: StorageKeys): Promise<void> => {
     try {
       await AsyncStorage.removeItem(key);
     } catch (error) {
-      console.error(`Error removing item with key ${key}:`, error);
+              // Error removing item
     }
 };

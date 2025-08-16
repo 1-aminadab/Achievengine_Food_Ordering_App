@@ -44,11 +44,11 @@ const HomeScreen = () => {
             [{ text: 'OK' }]
           );
         }
-      } catch (error) {
-        console.error('Failed to initialize app:', error);
-      } finally {
-        setLoading(false);
-      }
+          } catch (error) {
+      // Handle initialization error silently
+    } finally {
+      setLoading(false);
+    }
     };
     
     initializeApp();
@@ -195,13 +195,14 @@ const HomeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 10,
   },
   addressContainer: {
     
     flexDirection:'row',
     alignItems:'center',
     padding: 15,
+    paddingTop:0,
+    marginTop: 35,
     // borderBottomWidth: 1,
     borderBottomColor: '#eee',
     width:width,
@@ -217,7 +218,7 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     backgroundColor: '#f5f5f5',
-    marginTop: 10,
+    marginTop: 15,
     // margin: 15,
     // padding: 10,
     // borderRadius: 10,

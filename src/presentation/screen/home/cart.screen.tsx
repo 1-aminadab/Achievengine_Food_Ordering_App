@@ -160,7 +160,8 @@ const PromoCodeModal = ({ visible, onClose, onApply }: {
 const CartItem = ({ item }: { item: ICartItem }) => {
   const [quantity, setQuantity] = useState(item.quantity);
   const [showSpecialRequest, setShowSpecialRequest] = useState(false);
-  const { addFoodToCart, removeFoodFromCart, updateCartItemSpecialRequest } = useFoodStore();
+  const [showRemoveConfirm, setShowRemoveConfirm] = useState(false);
+  const { addFoodToCart, removeFoodFromCart, updateCartItemSpecialRequest, removeCartItem } = useFoodStore();
 
   const handleIncrement = (id: string) => {
     addFoodToCart(id);
@@ -182,17 +183,25 @@ const CartItem = ({ item }: { item: ICartItem }) => {
     <View style={styles.cartItem}>
       <Image source={{ uri: item.imageUrl }} style={styles.itemImage} />
       <View style={styles.itemDetails}>
-        <Typography color={Theme.colors.black} weight={FontWeights.Bold} size={FontSizes.Large}>
-          {item.name}
-        </Typography>
-        <Typography weight={FontWeights.Bold} color={Theme.colors.gray}>
-          {item.specialRequest || 'No special requests'}
-        </Typography>
-        <TouchableOpacity onPress={() => setShowSpecialRequest(true)}>
-          <Typography size={FontSizes.Large} weight={FontWeights.Bold} color={Theme.colors.LightGreen}>
-            Edit Special Request
+        <View style={styles.itemHeader}>
+          <Typography color={Theme.colors.black} weight={FontWeights.Bold} size={FontSizes.Large}>
+            {item.name}
           </Typography>
-        </TouchableOpacity>
+          <TouchableOpacity 
+            onPress={() => setShowRemoveConfirm(true)}
+            style={styles.removeButton}
+          >
+            <Icon from={IconLibraryName.MaterialIcons} name="delete" size={20} color={Theme.colors.red} />
+          </TouchableOpacity>
+        </View>
+        <View style={styles.specialRequestRow}>
+          <Typography weight={FontWeights.Bold} color={Theme.colors.gray} style={styles.specialRequestText}>
+            {item.specialRequest || 'No special requests'}
+          </Typography>
+          <TouchableOpacity onPress={() => setShowSpecialRequest(true)} style={styles.editButton}>
+            <Icon from={IconLibraryName.MaterialIcons} name="edit" size={16} color={Theme.colors.LightGreen} />
+          </TouchableOpacity>
+        </View>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
           <Typography weight={FontWeights.Bold} size={FontSizes.Medium}>{item.price} ETB</Typography>
           <View style={styles.quantityControls}>
@@ -213,6 +222,24 @@ const CartItem = ({ item }: { item: ICartItem }) => {
         currentRequest={item.specialRequest || ''}
         itemName={item.name}
         onSave={handleSpecialRequestSave}
+      />
+
+      <CustomModal
+        visible={showRemoveConfirm}
+        onClose={() => setShowRemoveConfirm(false)}
+        title="Remove Item"
+        message={`Are you sure you want to remove "${item.name}" from your cart?`}
+        actions={[
+          { text: 'Cancel', onPress: () => setShowRemoveConfirm(false), style: 'cancel' },
+          { 
+            text: 'Remove', 
+            onPress: () => {
+              removeCartItem(item.id);
+              setShowRemoveConfirm(false);
+            }, 
+            style: 'destructive' 
+          }
+        ]}
       />
     </View>
   );
@@ -444,6 +471,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Theme.colors.GrayLight + '77',
+    paddingTop: 15,
   },
   header: {
     flexDirection: 'row',
@@ -480,6 +508,32 @@ const styles = StyleSheet.create({
   itemDetails: {
     flex: 1,
     marginLeft: 10,
+  },
+  itemHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 5,
+  },
+  removeButton: {
+    padding: 5,
+    borderRadius: 15,
+    backgroundColor: Theme.colors.red + '20',
+  },
+  specialRequestRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 5,
+  },
+  specialRequestText: {
+    flex: 1,
+    marginRight: 10,
+  },
+  editButton: {
+    padding: 5,
+    borderRadius: 12,
+    backgroundColor: Theme.colors.LightGreen + '20',
   },
   quantityControls: {
     flexDirection: 'row',

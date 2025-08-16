@@ -20,21 +20,32 @@ export default function FoodSwiperScreen() {
 
   const [viewHeight, setHeight] = useState<number | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [hasInitialized, setHasInitialized] = useState(false);
   const flatListRef = React.useRef<FlatList>(null);
   const dispatch = { addFoodToCart, selectFood } as const;
   const scrollY = React.useRef(new Animated.Value(0)).current;
   const navigation = useNavigation<NavigationProp<any>>();
+
+  // Reset initialization when screen comes into focus
+  React.useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      setHasInitialized(false);
+    });
+
+    return unsubscribe;
+  }, [navigation]);
 
   const handleSelectFood = (id: string) => {
     dispatch.selectFood(id);
     navigation.navigate(HomeScreens.FoodDetail);
   };
   useEffect(() => {
-    // If a specific food is selected, find its index and scroll to it
-    if (selectedFood && foodItems && foodItems.length > 0 && viewHeight) {
+    // Only scroll to selected food on initial load, not when adding items to cart
+    if (selectedFood && foodItems && foodItems.length > 0 && viewHeight && !hasInitialized) {
       const selectedIndex = foodItems.findIndex(item => item.id === selectedFood.id);
       if (selectedIndex !== -1 && selectedIndex < foodItems.length) {
         setCurrentIndex(selectedIndex);
+        setHasInitialized(true);
         // Scroll to the selected item after a small delay to ensure FlatList is ready
         setTimeout(() => {
           flatListRef.current?.scrollToIndex({
@@ -44,7 +55,7 @@ export default function FoodSwiperScreen() {
         }, 100);
       }
     }
-  }, [selectedFood, foodItems, viewHeight]);
+  }, [selectedFood, foodItems, viewHeight, hasInitialized]);
 
   const getCartQuantity = (itemId: string): number => {
     const cartItem = cart.find(item => item.id === itemId);

@@ -81,7 +81,6 @@ export const SwiperScroll: React.FC<{ items: { id: string; label: string; image:
   }, []);
 
   if (!items || items.length === 0) {
-    console.error('The items array is empty or undefined.');
     return (
       <View>
         <ActivityIndicator />

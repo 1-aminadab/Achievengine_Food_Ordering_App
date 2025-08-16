@@ -68,7 +68,7 @@ const Icon: React.FC<IconProps> = ({ from, name, size = 24, color = 'black', sty
   }[from];
 
   if (!IconComponent) {
-    console.warn(`Icon library '${from}' not found.`);
+    // Icon library not found
     return null;
   }
 

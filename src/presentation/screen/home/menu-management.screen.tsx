@@ -48,6 +48,8 @@ const MenuManagementScreen = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingItem, setEditingItem] = useState<IFood | null>(null);
   const [loading, setLoading] = useState(false);
+  const [saveLoading, setSaveLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState<string | null>(null);
   const [backendConnected, setBackendConnected] = useState(false);
   const [formData, setFormData] = useState<MenuFormData>({
     name: '',
@@ -110,16 +112,9 @@ const MenuManagementScreen = () => {
 
   const verifyBackendConnection = async () => {
     try {
-      console.log('🔍 Verifying backend connection on screen load...');
       const isConnected = await api.food.getAllFoods().then(() => true).catch(() => false);
       setBackendConnected(isConnected);
-      if (isConnected) {
-        console.log('✅ Backend connection verified - ready for menu management');
-      } else {
-        console.log('⚠️ Backend connection failed - some features may not work');
-      }
     } catch (error) {
-      console.error('❌ Backend connection verification failed:', error);
       setBackendConnected(false);
     }
   };
@@ -143,25 +138,21 @@ const MenuManagementScreen = () => {
       console.log('Image picker response:', response);
       
       if (response.didCancel) {
-        console.log('User cancelled image picker');
         return;
       }
       
       if (response.errorMessage) {
-        console.error('Image picker error:', response.errorMessage);
         showModal('Error', `Failed to pick image: ${response.errorMessage}`);
         return;
       }
 
       if (response.errorCode) {
-        console.error('Image picker error code:', response.errorCode);
         showModal('Error', `Image picker error: ${response.errorCode}`);
         return;
       }
 
       if (response.assets && response.assets[0]) {
         const asset = response.assets[0];
-        console.log('Selected image asset:', asset);
         
         if (!asset.uri) {
           showModal('Error', 'Selected image has no URI');
@@ -243,14 +234,14 @@ const MenuManagementScreen = () => {
       return;
     }
 
-    setLoading(true);
+    setSaveLoading(true);
     try {
       // Verify backend connection before proceeding
       console.log('🔍 Verifying backend connection before upload...');
       const isConnected = await api.food.getAllFoods().then(() => true).catch(() => false);
       if (!isConnected) {
         showModal('Error', 'Cannot connect to backend server. Please check your connection and try again.');
-        setLoading(false);
+        setSaveLoading(false);
         return;
       }
 
@@ -259,15 +250,12 @@ const MenuManagementScreen = () => {
       // Upload the selected image only if a new image is selected
       if (formData.imageUri) {
         try {
-          console.log('Starting image upload for menu item:', formData.name);
           const fileName = `menu_${Date.now()}_${formData.name.replace(/\s+/g, '_')}.jpg`;
           const uploadResponse = await api.upload.uploadImage(formData.imageUri, fileName);
           imageUrl = uploadResponse.data.url || uploadResponse.data.imageUrl;
-          console.log('Image upload successful:', imageUrl);
         } catch (uploadError) {
-          console.error('Image upload failed:', uploadError);
           showModal('Error', `Failed to upload image: ${uploadError instanceof Error ? uploadError.message : 'Unknown error'}. Please try again.`);
-          setLoading(false);
+          setSaveLoading(false);
           return;
         }
       }
@@ -291,7 +279,7 @@ const MenuManagementScreen = () => {
         userDistance: formData.userDistance ? parseFloat(formData.userDistance) : undefined,
       };
 
-      console.log('Saving food data:', foodData);
+
 
       if (editingItem) {
         await api.food.updateFood(editingItem.id, foodData);
@@ -307,10 +295,9 @@ const MenuManagementScreen = () => {
       resetForm();
       setEditingItem(null);
     } catch (error) {
-      console.error('Error saving menu item:', error);
       showModal('Error', `Failed to save menu item: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`);
     } finally {
-      setLoading(false);
+      setSaveLoading(false);
     }
   };
 
@@ -325,17 +312,16 @@ const MenuManagementScreen = () => {
           style: 'destructive' as const,
           onPress: async () => {
             hideModal();
-            setLoading(true);
+            setDeleteLoading(itemId);
             try {
               await api.food.deleteFood(itemId);
               await loadFoodsFromApi();
               showModal('Success', 'Menu item deleted successfully');
-            } catch (error) {
-              console.error('Error deleting menu item:', error);
-              showModal('Error', 'Failed to delete menu item. Please try again.');
-            } finally {
-              setLoading(false);
-            }
+                } catch (error) {
+      showModal('Error', 'Failed to delete menu item. Please try again.');
+    } finally {
+      setDeleteLoading(null);
+    }
           },
         },
       ]
@@ -348,7 +334,6 @@ const MenuManagementScreen = () => {
       const result = await api.upload.testUploadEndpoint();
       showModal('Upload Test', `Upload endpoint is working!\n\n${JSON.stringify(result, null, 2)}`);
     } catch (error) {
-      console.error('Upload test failed:', error);
       showModal('Upload Test Failed', `Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setLoading(false);
@@ -366,7 +351,6 @@ const MenuManagementScreen = () => {
         showModal('Connection Test', '❌ Backend connection failed!\n\nPlease check if the server is running.');
       }
     } catch (error) {
-      console.error('Connection test failed:', error);
       setBackendConnected(false);
       showModal('Connection Test Failed', `Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
@@ -391,14 +375,26 @@ const MenuManagementScreen = () => {
         <TouchableOpacity
           style={[styles.actionButton, { backgroundColor: Theme.colors.Primary }]}
           onPress={() => openEditModal(item)}
+          disabled={deleteLoading === item.id}
         >
           <Icon from={IconLibraryName.MaterialIcons} name="edit" size={16} color={Theme.colors.white} />
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.actionButton, { backgroundColor: Theme.colors.Error }]}
+          style={[
+            styles.actionButton, 
+            { 
+              backgroundColor: deleteLoading === item.id ? colors.muted : Theme.colors.Error,
+              opacity: deleteLoading === item.id ? 0.6 : 1
+            }
+          ]}
           onPress={() => handleDelete(item.id)}
+          disabled={deleteLoading === item.id}
         >
-          <Icon from={IconLibraryName.MaterialIcons} name="delete" size={16} color={Theme.colors.white} />
+          {deleteLoading === item.id ? (
+            <Icon from={IconLibraryName.MaterialIcons} name="hourglass-empty" size={16} color={Theme.colors.white} />
+          ) : (
+            <Icon from={IconLibraryName.MaterialIcons} name="delete" size={16} color={Theme.colors.white} />
+          )}
         </TouchableOpacity>
       </View>
     </View>
@@ -461,8 +457,15 @@ const MenuManagementScreen = () => {
             <Text style={[styles.modalTitle, { color: colors.text }]}>
               {editingItem ? 'Edit Menu Item' : 'Add Menu Item'}
             </Text>
-            <TouchableOpacity onPress={handleSave}>
-              <Text style={[styles.saveButton, { color: Theme.colors.Primary }]}>Save</Text>
+            <TouchableOpacity onPress={handleSave} disabled={saveLoading}>
+              {saveLoading ? (
+                <View style={styles.saveLoadingContainer}>
+                  <Icon from={IconLibraryName.MaterialIcons} name="hourglass-empty" size={16} color={Theme.colors.Primary} />
+                  <Text style={[styles.saveButton, { color: Theme.colors.Primary, marginLeft: 8 }]}>Saving...</Text>
+                </View>
+              ) : (
+                <Text style={[styles.saveButton, { color: Theme.colors.Primary }]}>Save</Text>
+              )}
             </TouchableOpacity>
           </View>
 
@@ -600,6 +603,18 @@ const MenuManagementScreen = () => {
         message={modalConfig.message}
         actions={modalConfig.actions}
       />
+
+      {/* Loading Overlay */}
+      {(loading || saveLoading || deleteLoading) && (
+        <View style={styles.loadingOverlay}>
+          <View style={styles.loadingContent}>
+            <Icon from={IconLibraryName.MaterialIcons} name="hourglass-empty" size={48} color={Theme.colors.white} />
+            <Text style={styles.loadingOverlayText}>
+              {loading ? 'Processing...' : saveLoading ? 'Saving...' : 'Deleting...'}
+            </Text>
+          </View>
+        </View>
+      )}
     </View>
   );
 };
@@ -822,6 +837,36 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     margin: 10,
+    marginTop: 15,
+  },
+  loadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+  },
+  loadingContent: {
+    backgroundColor: Theme.colors.Primary,
+    padding: 24,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: 120,
+  },
+  loadingOverlayText: {
+    color: Theme.colors.white,
+    fontSize: 16,
+    fontWeight: '600',
+    marginTop: 12,
+  },
+  saveLoadingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 });
 

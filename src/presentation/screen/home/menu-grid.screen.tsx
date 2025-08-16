@@ -45,7 +45,7 @@ const MenuGridScreen = () => {
     try {
       await loadFoodsFromApi();
     } catch (error) {
-      console.error('Failed to load foods:', error);
+      // Handle loading error silently
     } finally {
       setLoading(false);
     }
@@ -310,6 +310,16 @@ const MenuGridScreen = () => {
           ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
         />
       )}
+
+      {/* Loading Overlay */}
+      {loading && (
+        <View style={styles.loadingOverlay}>
+          <View style={styles.loadingContent}>
+            <Icon from={IconLibraryName.MaterialIcons} name="hourglass-empty" size={48} color={Theme.colors.white} />
+            <Text style={styles.loadingOverlayText}>Loading...</Text>
+          </View>
+        </View>
+      )}
     </View>
   );
 };
@@ -547,6 +557,7 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     margin: 10,
+    marginTop: 15,
   },
   loadingState: {
     flex: 1,
@@ -558,6 +569,31 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '500',
     marginTop: 16,
+  },
+  loadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+  },
+  loadingContent: {
+    backgroundColor: Theme.colors.Primary,
+    padding: 24,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: 120,
+  },
+  loadingOverlayText: {
+    color: Theme.colors.white,
+    fontSize: 16,
+    fontWeight: '600',
+    marginTop: 12,
   },
 });
 

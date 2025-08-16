@@ -52,7 +52,7 @@ export const CustomModal: React.FC<CustomModalProps> = ({
       case 'destructive':
         return { backgroundColor: '#FF3B30', color: '#FFFFFF' };
       default:
-        return { backgroundColor: colors.primary, color: '#FFFFFF' };
+        return { backgroundColor: '#FF9500', color: '#FFFFFF' }; // Orange instead of green
     }
   };
 
@@ -127,7 +127,7 @@ export const CustomModal: React.FC<CustomModalProps> = ({
                   >
                     <Typography
                       size={FontSizes.Medium}
-                      weight={FontWeights.SemiBold}
+                      weight={FontWeights.Bold}
                       color={buttonStyle.color}
                     >
                       {action.text}
@@ -152,11 +152,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   modalContainer: {
-    width: width * 0.9,
-    maxWidth: 400,
+    width: width * 0.85,
+    maxWidth: 350,
     borderRadius: 16,
-    paddingVertical: 20,
-    paddingHorizontal: 20,
+    paddingVertical: 24,
+    paddingHorizontal: 24,
     elevation: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
@@ -176,10 +176,12 @@ const styles = StyleSheet.create({
   },
   messageContainer: {
     marginBottom: 20,
+    paddingHorizontal: 10,
   },
   messageText: {
     textAlign: 'center',
-    lineHeight: 20,
+    lineHeight: 22,
+    flexWrap: 'wrap',
   },
   contentContainer: {
     marginBottom: 20,
@@ -187,18 +189,20 @@ const styles = StyleSheet.create({
   actionsContainer: {
     flexDirection: 'row',
     gap: 12,
+    justifyContent: 'center',
   },
   actionButton: {
     flex: 1,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 8,
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
+    minWidth: 100,
   },
   singleButton: {
     flex: 0,
-    paddingHorizontal: 32,
+    paddingHorizontal: 40,
     alignSelf: 'center',
   },
 });
